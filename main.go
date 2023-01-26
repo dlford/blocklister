@@ -27,7 +27,7 @@ func run(c *config.Config, s *gocron.Scheduler) {
 	for _, m := range c.ListConfigs {
 		l, err := blocklist.CreateList(&m)
 		if err != nil {
-			fmt.Printf("Error populating list %s: %v\n", l.Title, err)
+			fmt.Printf("Error fetching list %s: %v\n", l.Title, err)
 			continue
 		}
 

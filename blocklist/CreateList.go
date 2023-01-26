@@ -29,6 +29,7 @@ func CreateList(m *config.ListConfig) (*BlockList, error) {
 
 	var ips []string
 
+	// TODO: Test subnets
 	for _, line := range strings.Split(string(data), "\n") {
 		ip := line
 		ip = strings.Split(line, "#")[0]
@@ -42,8 +43,12 @@ func CreateList(m *config.ListConfig) (*BlockList, error) {
 			continue
 		}
 
-		match, err := regexp.MatchString(`^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$`, ip)
-		if err != nil || !match {
+		numBlock := "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])"
+		subnet := "?(\\/[1-2]?[0-9]|\\/3[0-2]|\\/[0-9])"
+		regexPattern := "^" + numBlock + "\\." + numBlock + "\\." + numBlock + "\\." + numBlock + subnet + "$"
+		matcher := regexp.MustCompile(regexPattern)
+		match := matcher.MatchString(ip)
+		if !match {
 			fmt.Printf("Discarded junk data: %s\n", ip)
 			continue
 		}
