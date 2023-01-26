@@ -1,6 +1,8 @@
 schedule: "* */15 * * *"
 lists:
-  - title: test1
-    url: https://test1
-  - title: test2
-    url: https://test2
+  - title: shodan
+    url: https://vlh.dk/shodan.txt
+  - title: dlford
+    url: https://raw.githubusercontent.com/dlford/blocklist/master/blocklist.txt
+  - title: ipsum
+    url: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
