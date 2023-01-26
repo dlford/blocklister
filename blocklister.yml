@@ -1,0 +1,6 @@
+schedule: "* */15 * * *"
+lists:
+  - title: test1
+    url: https://test1
+  - title: test2
+    url: https://test2
