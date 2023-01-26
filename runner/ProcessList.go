@@ -31,25 +31,22 @@ func ProcessList(l *blocklist.BlockList) error {
 	set.Create(l.Title, "hash:net")
 
 	for _, c := range l.Chains {
-		exists, err := table.Exists("filter", c, "-m", "set", l.Title, "src", "-j", "DROP")
+		exists, err := table.Exists("filter", c, "-m", "set", "--match-set", l.Title, "src", "-j", "DROP")
 		if err != nil {
 			return err
 		}
 		if !exists {
-			err = table.Insert("filter", c, 1, "-m", "set", l.Title, "src", "-j", "DROP")
+			err = table.Insert("filter", c, 1, "-m", "set", "--match-set", l.Title, "src", "-j", "DROP")
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	set.Create(l.Title+"_swap", "hash:net")
-	set.Flush(l.Title + "_swap")
+	set.Flush(l.Title)
 	for _, ip := range l.IPs {
-		set.AddUnique(l.Title+"_swap", ip)
+		set.AddUnique(l.Title, ip)
 	}
-	set.Swap(l.Title+"_flush", l.Title)
-	set.Destroy(l.Title + "_flush")
 
 	fmt.Printf("Processed %d IPs for list %s\n", len(l.IPs), l.Title)
 
