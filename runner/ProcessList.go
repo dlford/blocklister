@@ -2,11 +2,11 @@ package runner
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/coreos/go-iptables/iptables"
 	"github.com/dlford/blocklister/blocklist"
+	"github.com/dlford/blocklister/ip_regex"
 )
 
 var table *iptables.IPTables
@@ -51,6 +51,7 @@ func ProcessList(l *blocklist.BlockList) error {
 		}
 	}
 
+	// TODO: test deletes
 	existing, err := table.List("filter", l.Title)
 	if err != nil {
 		return err
@@ -58,15 +59,33 @@ func ProcessList(l *blocklist.BlockList) error {
 
 	for _, e := range existing {
 		if strings.Contains(e, "DROP") {
-			numBlock := "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])"
-			subnet := "?(\\/[1-2]?[0-9]|\\/3[0-2]|\\/[0-9])"
-			regexPattern := numBlock + "\\." + numBlock + "\\." + numBlock + "\\." + numBlock + subnet
-			matcher := regexp.MustCompile(regexPattern)
-			fmt.Println(matcher.FindString(e))
+			matcher := ip_regex.GetIPorCIDRregex()
+			cidr := matcher.FindString(e)
+			parts := strings.Split(cidr, "/")
+			ip := parts[0]
+
+			stillInList := contains(l.IPs, ip)
+			if !stillInList {
+				stillInList = contains(l.IPs, cidr)
+			}
+
+			if !stillInList {
+				table.Delete("filter", l.Title, "-s", cidr, "-j", "DROP")
+			}
 		}
 	}
 
 	fmt.Printf("Processed %d IPs for list %s\n", len(l.IPs), l.Title)
 
 	return nil
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
