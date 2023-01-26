@@ -2,16 +2,15 @@ package runner
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/coreos/go-iptables/iptables"
 	"github.com/dlford/blocklister/blocklist"
-	"github.com/dlford/blocklister/ip_regex"
+	"github.com/gmccue/go-ipset"
 )
 
 var table *iptables.IPTables
+var set *ipset.IPSet
 
-// TODO: Try using `ipset` and `iptables -I <chain> -m set --match-set <setname> src -j DROP` instead of custom chains
 func ProcessList(l *blocklist.BlockList) error {
 	if table == nil {
 		var err error
@@ -21,61 +20,36 @@ func ProcessList(l *blocklist.BlockList) error {
 		}
 	}
 
-	exists, err := table.ChainExists("filter", l.Title)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		err = table.NewChain("filter", l.Title)
+	if set == nil {
+		var err error
+		set, err = ipset.New()
 		if err != nil {
 			return err
 		}
 	}
 
+	set.Create(l.Title, "hash:net")
+
 	for _, c := range l.Chains {
-		exists, err := table.Exists("filter", c, "-j", l.Title)
+		exists, err := table.Exists("filter", c, "-m", "set", l.Title, "src", "-j", "DROP")
 		if err != nil {
 			return err
 		}
 		if !exists {
-			err = table.Insert("filter", c, 1, "-j", l.Title)
+			err = table.Insert("filter", c, 1, "-m", "set", l.Title, "src", "-j", "DROP")
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	listMap := make(map[string]bool)
-
+	set.Create(l.Title+"_swap", "hash:net")
+	set.Flush(l.Title + "_swap")
 	for _, ip := range l.IPs {
-		listMap[ip] = true
-		err = table.AppendUnique("filter", l.Title, "-s", ip, "-j", "DROP")
-		if err != nil {
-			return err
-		}
+		set.AddUnique(l.Title+"_swap", ip)
 	}
-
-	// TODO: test deletes
-	existing, err := table.List("filter", l.Title)
-	if err != nil {
-		return err
-	}
-
-	for _, e := range existing {
-		matcher := ip_regex.GetIPorCIDRregex()
-		cidr := matcher.FindString(e)
-		parts := strings.Split(cidr, "/")
-		ip := parts[0]
-
-		stillInList := listMap[ip]
-		if !stillInList {
-			stillInList = listMap[cidr]
-		}
-
-		if !stillInList {
-			table.Delete("filter", l.Title, "-s", cidr, "-j", "DROP")
-		}
-	}
+	set.Swap(l.Title+"_flush", l.Title)
+	set.Destroy(l.Title + "_flush")
 
 	fmt.Printf("Processed %d IPs for list %s\n", len(l.IPs), l.Title)
 
