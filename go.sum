@@ -5,8 +5,6 @@ github.com/gmccue/go-ipset v0.0.0-20151126205411-75b14f6e6ee0 h1:ik9ngSDUROLA5Fn
 github.com/gmccue/go-ipset v0.0.0-20151126205411-75b14f6e6ee0/go.mod h1:c13RlWcQ5JUmOmGeEg/VJQJj6fgOZ3bp9aNZV+SjNU4=
 github.com/go-co-op/gocron v1.18.0 h1:SxTyJ5xnSN4byCq7b10LmmszFdxQlSQJod8s3gbnXxA=
 github.com/go-co-op/gocron v1.18.0/go.mod h1:sD/a0Aadtw5CpflUJ/lpP9Vfdk979Wl1Sg33HPHg0FY=
-github.com/janeczku/go-ipset v0.1.0 h1:NJiyO+q4iXrym/qn7C1QfTyC/fOdC6v38BK/E594o20=
-github.com/janeczku/go-ipset v0.1.0/go.mod h1:ODSf7OwsjH7j/RXRA+s88JB6PMMBe9U/uZE3OJVA5bM=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
