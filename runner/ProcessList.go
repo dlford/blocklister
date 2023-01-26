@@ -11,6 +11,7 @@ import (
 
 var table *iptables.IPTables
 
+// TODO: Try using `ipset` and `iptables -I <chain> -m set --match-set <setname> src -j DROP` instead of custom chains
 func ProcessList(l *blocklist.BlockList) error {
 	if table == nil {
 		var err error
@@ -44,7 +45,10 @@ func ProcessList(l *blocklist.BlockList) error {
 		}
 	}
 
+	listMap := make(map[string]bool)
+
 	for _, ip := range l.IPs {
+		listMap[ip] = true
 		err = table.AppendUnique("filter", l.Title, "-s", ip, "-j", "DROP")
 		if err != nil {
 			return err
@@ -58,34 +62,22 @@ func ProcessList(l *blocklist.BlockList) error {
 	}
 
 	for _, e := range existing {
-		if strings.Contains(e, "DROP") {
-			matcher := ip_regex.GetIPorCIDRregex()
-			cidr := matcher.FindString(e)
-			parts := strings.Split(cidr, "/")
-			ip := parts[0]
+		matcher := ip_regex.GetIPorCIDRregex()
+		cidr := matcher.FindString(e)
+		parts := strings.Split(cidr, "/")
+		ip := parts[0]
 
-			stillInList := contains(l.IPs, ip)
-			if !stillInList {
-				stillInList = contains(l.IPs, cidr)
-			}
+		stillInList := listMap[ip]
+		if !stillInList {
+			stillInList = listMap[cidr]
+		}
 
-			if !stillInList {
-				table.Delete("filter", l.Title, "-s", cidr, "-j", "DROP")
-			}
+		if !stillInList {
+			table.Delete("filter", l.Title, "-s", cidr, "-j", "DROP")
 		}
 	}
 
 	fmt.Printf("Processed %d IPs for list %s\n", len(l.IPs), l.Title)
 
 	return nil
-}
-
-func contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
-	}
-
-	return false
 }

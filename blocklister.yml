@@ -10,8 +10,8 @@ lists:
     chains:
       - INPUT
       - DOCKER-USER
-# - title: IPSUM
-#   url: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
-#   chains:
-#     - INPUT
-#     - DOCKER-USER
+  - title: IPSUM
+    url: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
+    chains:
+      - INPUT
+      - DOCKER-USER
