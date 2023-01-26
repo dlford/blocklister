@@ -2,69 +2,43 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"regexp"
-	"strings"
+	"time"
 
+	"github.com/dlford/blocklister/blocklist"
 	"github.com/dlford/blocklister/config"
+	"github.com/dlford/blocklister/runner"
+	"github.com/go-co-op/gocron"
 )
 
 func main() {
 	var c config.Config
+	c.Load()
 
-	c.GetConf()
+	s := gocron.NewScheduler(time.Local)
+	s.Cron(c.Schedule).Do(run, &c, s)
+	go run(&c, s)
+	s.StartBlocking()
+}
 
-	fmt.Printf("Schedule: %s\n", c.Schedule)
-	fmt.Printf("Lists: %d\n", len(c.Lists))
-	for i, l := range c.Lists {
-		fmt.Printf("List #%d = (%s): %s\n", i+1, l.Title, l.URL)
+func run(c *config.Config, s *gocron.Scheduler) {
+	fmt.Println("Updating blocklists...")
+	start := time.Now()
+
+	for _, m := range c.ListConfigs {
+		l, err := blocklist.CreateList(&m)
+		if err != nil {
+			fmt.Printf("Error populating list %s: %v\n", l.Title, err)
+			continue
+		}
+
+		err = runner.ProcessList(l)
+		if err != nil {
+			fmt.Printf("Error processing list %s: %v\n", l.Title, err)
+		}
 	}
 
-	for _, l := range c.Lists {
-		res, err := http.Get(l.URL)
-		if err != nil {
-			fmt.Printf("Fetch list error: %v\n", err)
-			continue
-		}
-
-		defer res.Body.Close()
-
-		if res.StatusCode != 200 {
-			fmt.Printf("Status code error: %d %s\n", res.StatusCode, res.Status)
-			continue
-		}
-
-		data, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			fmt.Printf("Read body error: %v\n", err)
-			continue
-		}
-
-		var ips []string
-
-		for _, line := range strings.Split(string(data), "\n") {
-			ip := line
-			ip = strings.Split(line, "#")[0]
-			ip = strings.Split(ip, "//")[0]
-			ip = strings.Split(ip, ";")[0]
-			ip = strings.Split(ip, "	")[0]
-			ip = strings.Split(ip, " ")[0]
-			ip = strings.TrimSpace(ip)
-
-			if ip == "" {
-				continue
-			}
-
-			match, err := regexp.MatchString(`^(\d{1,3}\.){3}\d{1,3}$`, ip)
-			if err != nil || !match {
-				fmt.Printf("Discarded junk data: %s\n", ip)
-				continue
-			}
-
-			ips = append(ips, ip)
-		}
-
-		fmt.Printf("List %s has %d IPs\n", l.Title, len(ips))
-	}
+	duration := time.Since(start)
+	_, next := s.NextRun()
+	fmt.Println("Finished updating blocklists in: ", duration)
+	fmt.Println("Next update scheduled at: ", next)
 }

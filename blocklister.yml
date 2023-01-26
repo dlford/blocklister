@@ -1,8 +1,17 @@
-schedule: "* */15 * * *"
+schedule: "*/15 * * * *"
 lists:
-  - title: shodan
+  - title: SHODAN
     url: https://vlh.dk/shodan.txt
-  - title: dlford
+    chains:
+      - INPUT
+      - DOCKER-USER
+  - title: DLFORD
     url: https://raw.githubusercontent.com/dlford/blocklist/master/blocklist.txt
-  - title: ipsum
+    chains:
+      - INPUT
+      - DOCKER-USER
+  - title: IPSUM
     url: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
+    chains:
+      - INPUT
+      - DOCKER-USER

@@ -8,17 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Config struct {
-	Lists    []Blocklist `yaml:"lists"`
-	Schedule string      `yaml:"schedule"`
-}
-
-type Blocklist struct {
-	Title string `yaml:"title"`
-	URL   string `yaml:"url"`
-}
-
-func (c *Config) GetConf() *Config {
+func (c *Config) Load() *Config {
 	var path string
 	if len(os.Args) > 1 {
 		path = os.Args[1]
