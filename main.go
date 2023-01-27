@@ -19,22 +19,21 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	for i, m := range c.ListConfigs {
+	for _, lc := range c.ListConfigs {
 		s := gocron.NewScheduler(time.Local)
-		s.Cron(m.Schedule).Do(run, &m, s)
-		go func() {
-			wg.Add(i)
+		go func(c_lc config.ListConfig, c_s *gocron.Scheduler) {
+			wg.Add(1)
 			defer wg.Done()
+			s.Cron(lc.Schedule).Do(run, &c_lc, c_s)
 			s.StartBlocking()
-		}()
-		run(&m, s)
+		}(lc, s)
+		run(&lc, s)
 	}
 
 	wg.Wait()
 }
 
 func run(m *config.ListConfig, s *gocron.Scheduler) {
-	fmt.Printf("Updating blocklist %s...\n", m.Title)
 	start := time.Now()
 
 	l, err := blocklist.CreateList(m)
@@ -43,13 +42,11 @@ func run(m *config.ListConfig, s *gocron.Scheduler) {
 		return
 	}
 
-	err = runner.ProcessList(l)
+	err = runner.ProcessList(l, &start)
 	if err != nil {
-		fmt.Printf("Error processing blocklist %s: %v\n", l.Title, err)
+		fmt.Printf("Error updating blocklist %s: %v\n", l.Title, err)
 	}
 
-	duration := time.Since(start)
 	_, next := s.NextRun()
-	fmt.Printf("Finished updating blocklist %s in: %s\n", l.Title, duration)
-	fmt.Printf("Next update for blocklist %s scheduled at: %s\n", l.Title, next)
+	fmt.Printf("Next update for blocklist %s scheduled at %s\n", l.Title, next)
 }

@@ -3,6 +3,7 @@ package runner
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/coreos/go-iptables/iptables"
 	"github.com/dlford/blocklister/blocklist"
@@ -12,7 +13,7 @@ import (
 var table *iptables.IPTables
 var set *ipset.IPSet
 
-func ProcessList(l *blocklist.BlockList) error {
+func ProcessList(l *blocklist.BlockList, s *time.Time) error {
 	if table == nil {
 		var err error
 		table, err = iptables.NewWithProtocol(iptables.ProtocolIPv4)
@@ -49,7 +50,8 @@ func ProcessList(l *blocklist.BlockList) error {
 		set.AddUnique(l.Title, ip)
 	}
 
-	fmt.Printf("Processed %d IPs for list %s\n", len(l.IPs), l.Title)
+	duration := time.Since(*s)
+	fmt.Printf("Processed %d IPs for blocklist %s in %s\n", len(l.IPs), l.Title, duration)
 
 	return nil
 }
