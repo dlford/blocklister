@@ -10,9 +10,11 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
+var Version string = "v2.0.0"
+
 func main() {
 	var c config.Config
-	c.Load()
+	c.Load(Version)
 
 	s := gocron.NewScheduler(time.Local)
 	s.Cron(c.Schedule).Do(run, &c, s)

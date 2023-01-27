@@ -34,7 +34,8 @@ lists:
 
 ## Arguments
 
-Blocklister accepts one optional argument, the path to your configuration file (e.g. `blocklister /path/to/config.yml`).
+- `-v | --version`: Prints the version of blocklister
+- `-c | --config /path/to/config.yml`: Override the default configuration file path
 
 ## Auto-start on Boot
 
