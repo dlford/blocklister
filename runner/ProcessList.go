@@ -30,24 +30,28 @@ func ProcessList(l *blocklist.BlockList, s *time.Time) error {
 		}
 	}
 
-	set.Create(l.Title, "hash:net", "maxelem", strconv.Itoa(l.MaxElem))
+	swapTitle := fmt.Sprintf("blocklister_%s_swap", l.Title)
+	title := fmt.Sprintf("blocklister_%s", l.Title)
+	set.Destroy(swapTitle)
+	set.Create(swapTitle, "hash:net", "maxelem", strconv.Itoa(l.MaxElem))
+	for _, ip := range l.IPs {
+		set.AddUnique(swapTitle, ip)
+	}
+	set.Create(title, "hash:net", "maxelem", strconv.Itoa(l.MaxElem))
+	set.Swap(swapTitle, title)
+	set.Destroy(swapTitle)
 
 	for _, c := range l.Chains {
-		exists, err := table.Exists("filter", c, "-m", "set", "--match-set", l.Title, "src", "-j", "DROP")
+		exists, err := table.Exists("filter", c, "-m", "set", "--match-set", title, "src", "-j", "DROP")
 		if err != nil {
 			return err
 		}
 		if !exists {
-			err = table.Insert("filter", c, 1, "-m", "set", "--match-set", l.Title, "src", "-j", "DROP")
+			err = table.Insert("filter", c, 1, "-m", "set", "--match-set", title, "src", "-j", "DROP")
 			if err != nil {
 				return err
 			}
 		}
-	}
-
-	set.Flush(l.Title)
-	for _, ip := range l.IPs {
-		set.AddUnique(l.Title, ip)
 	}
 
 	duration := time.Since(*s)
