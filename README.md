@@ -22,7 +22,9 @@ lists:
   # Title will be used for `ipset` name
   - title: ipsum
     # URL to a TXT file with a list of IP addresses to block
-    url: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
+    url: https://raw.githubusercontent.com/stamparm/ipsum/mastejr/ipsum.txt
+    # max number of elements in set, default is 65536, increase for larger lists
+    max_elem: 300000
     # iptables chains to block IPs from, add as many as needed
     chains:
       # Default inbound traffic chain is INPUT

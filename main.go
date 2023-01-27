@@ -10,7 +10,7 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
-var Version string = "v2.0.0"
+var Version string = "v2.0.1"
 
 func main() {
 	var c config.Config

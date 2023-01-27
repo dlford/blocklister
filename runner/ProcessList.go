@@ -2,6 +2,7 @@ package runner
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/coreos/go-iptables/iptables"
 	"github.com/dlford/blocklister/blocklist"
@@ -28,7 +29,7 @@ func ProcessList(l *blocklist.BlockList) error {
 		}
 	}
 
-	set.Create(l.Title, "hash:net")
+	set.Create(l.Title, "hash:net", "maxelem", strconv.Itoa(l.MaxElem))
 
 	for _, c := range l.Chains {
 		exists, err := table.Exists("filter", c, "-m", "set", "--match-set", l.Title, "src", "-j", "DROP")

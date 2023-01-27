@@ -46,8 +46,9 @@ func CreateList(m *config.ListConfig) (*BlockList, error) {
 	}
 
 	return &BlockList{
-		Title:  m.Title,
-		Chains: m.Chains,
-		IPs:    ips,
+		Title:   m.Title,
+		MaxElem: m.MaxElem,
+		Chains:  m.Chains,
+		IPs:     ips,
 	}, nil
 }

@@ -45,5 +45,11 @@ func (c *Config) Load(v string) *Config {
 		log.Fatalf("Cannot unmarshal config file: %v", err)
 	}
 
+	for i, l := range c.ListConfigs {
+		if l.MaxElem == 0 {
+			c.ListConfigs[i].MaxElem = 65536
+		}
+	}
+
 	return c
 }
