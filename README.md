@@ -15,7 +15,7 @@ Blocklister uses a YAML configuration file, the default location is `/etc/blockl
 # /etc/blocklister.yml
 
 # Cron syntax, default list updating schedule for all lists
-schedule: "0 * * * *" # Every 15 minutes
+schedule: "*/15 * * * *" # Every 15 minutes
 # Blocklists, add as many as needed
 lists:
   # Title will be used for `ipset` name
@@ -32,7 +32,7 @@ lists:
     # [optional] max number of elements in set, default is 65536, increase for larger lists
     max_elem: 300000
     # [optional] Cron syntax, overrides default schedule
-    schedule: "*/15 * * * *"
+    schedule: "0 0 * * *" # Every day at midnight
 ```
 
 ## Arguments
@@ -65,9 +65,11 @@ Install: `ansible-galaxy install dlford.blocklisterd`
            - docker.service
          blocklisterd_config:
            schedule: "*/15 * * * *"
+           max_elem: 300000
            lists:
              - title: ipsum
                url: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
+               schedule: "0 0 * * *"
                chains:
                  - INPUT
                  - DOCKER-USER
