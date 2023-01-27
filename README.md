@@ -57,21 +57,33 @@ Install: `ansible-galaxy install dlford.blocklisterd`
 ```yml
 - hosts: servers
   roles:
-     - role: dlford.blocklisterd
-       vars:
-         blocklisterd_major_version: v2
-         blocklisterd_start_after:
-           - network-online.target
-           - docker.service
-         blocklisterd_config:
-           schedule: "*/15 * * * *"
-           max_elem: 300000
-           lists:
-             - title: ipsum
-               url: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
-               schedule: "0 0 * * *"
-               chains:
-                 - INPUT
-                 - DOCKER-USER
+      - role: dlford.blocklisterd
+        vars:
+          # Update Blocklister within this major version when playbook is run
+          blocklisterd_major_version: v2
+          # Systemd service file `After=` args
+          blocklisterd_start_after:
+            - network-online.target
+            - docker.service # Added Docker service, because it creates the `DOCKER-USER` chain
+          blocklisterd_config:
+            # Cron syntax, default list updating schedule for all lists
+            schedule: "*/15 * * * *" # Every 15 minutes
+            # Blocklists, add as many as needed
+            lists:
+              # Title will be used for `ipset` name
+              - title: ipsum
+                # URL to a TXT file with a list of IP addresses to block
+                url: https://raw.githubusercontent.com/stamparm/ipsum/mastejr/ipsum.txt
+                # iptables chains to block IPs from, add as many as needed
+                chains:
+                  # Default inbound traffic chain is INPUT
+                  - INPUT
+                  # Docker published ports skip the INPUT chain,
+                  # the DOCKER-USER chain is for user rules
+                  - DOCKER-USER
+                # [optional] max number of elements in set, default is 65536, increase for larger lists
+                max_elem: 300000
+                # [optional] Cron syntax, overrides default schedule
+                schedule: "0 0 * * *" # Every day at midnight
 ```
 
