@@ -14,8 +14,7 @@ func (c *Config) Load() *Config {
 		path = os.Args[1]
 	}
 	if path == "" {
-		// TODO: Change to /etc/blocklister.yml
-		path = "blocklister.yml"
+		path = "/etc/blocklister.yml"
 	}
 
 	yamlFile, err := ioutil.ReadFile(path)
