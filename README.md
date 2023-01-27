@@ -50,7 +50,7 @@ lists:
 @reboot root /path/to/blocklister
 ```
 
-### Via the [Official Ansible Role](https://galaxy.ansible.com/dlford/blocklisterd)
+### Via the Official [Ansible Role](https://galaxy.ansible.com/dlford/blocklisterd)
 
 Install: `ansible-galaxy install dlford.blocklisterd`
 
