@@ -11,7 +11,7 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
-var Version string = "v2.1.1"
+var Version string = "v2.1.2"
 
 func main() {
 	var c config.Config
@@ -34,6 +34,7 @@ func main() {
 }
 
 func run(m *config.ListConfig, s *gocron.Scheduler) {
+	fmt.Printf("Started updating blocklist %s...\n", m.Title)
 	start := time.Now()
 
 	l, err := blocklist.CreateList(m)

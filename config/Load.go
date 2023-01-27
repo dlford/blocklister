@@ -35,6 +35,8 @@ func (c *Config) Load(v string) *Config {
 		path = "/etc/blocklister.yml"
 	}
 
+	fmt.Printf("Starting Blocklister %s...\n", v)
+
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatalf("Cannot read config file: %s\n#%v", path, err)
@@ -54,5 +56,6 @@ func (c *Config) Load(v string) *Config {
 		}
 	}
 
+	fmt.Printf("Loaded configuration file: %s\n", path)
 	return c
 }
