@@ -35,3 +35,13 @@ lists:
 ## Arguments
 
 Blocklister accepts one optional argument, the path to your configuration file (e.g. `blocklister /path/to/config.yml`).
+
+## Auto-start on Boot
+
+The easiest way to auto-start blocklister is via cron.
+
+```
+# /etc/cron.d/blocklister
+
+@reboot root /path/to/blocklister
+```
