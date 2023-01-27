@@ -11,7 +11,7 @@ A daemon written in Go for processing IP block list (TXT) files into iptables ru
 
 Blocklister uses a YAML configuration file, the default location is `/etc/blocklister.yml`
 
-```
+```yml
 # /etc/blocklister.yml
 
 # Cron syntax, default list updating schedule for all lists
@@ -42,10 +42,34 @@ lists:
 
 ## Auto-start on Boot
 
-The easiest way to auto-start blocklister is via cron.
+### Via cron.
 
 ```
 # /etc/cron.d/blocklister
 
 @reboot root /path/to/blocklister
 ```
+
+### Via the [Official Ansible Role](https://galaxy.ansible.com/dlford/blocklisterd)
+
+Install: `ansible-galaxy install dlford.blocklisterd`
+
+```yml
+- hosts: servers
+  roles:
+     - role: dlford.blocklisterd
+       vars:
+         blocklisterd_major_version: v2
+         blocklisterd_start_after:
+           - network-online.target
+           - docker.service
+         blocklisterd_config:
+           schedule: "*/15 * * * *"
+           lists:
+             - title: ipsum
+               url: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
+               chains:
+                 - INPUT
+                 - DOCKER-USER
+```
+
