@@ -49,6 +49,9 @@ func (c *Config) Load(v string) *Config {
 		if l.MaxElem == 0 {
 			c.ListConfigs[i].MaxElem = 65536
 		}
+		if l.Schedule == "" {
+			c.ListConfigs[i].Schedule = c.Schedule
+		}
 	}
 
 	return c
