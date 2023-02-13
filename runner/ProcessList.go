@@ -48,8 +48,14 @@ func ProcessList(l *blocklist.BlockList, s *time.Time) error {
 		}
 		if !exists {
 			err = table.Insert("filter", c, 1, "-m", "set", "--match-set", title, "src", "-j", "DROP")
-			if err != nil {
-				return err
+			for {
+				if err == nil {
+					break
+				}
+				fmt.Printf("Error inserting rule for chain %s: %v", c, err)
+				fmt.Println("Retrying in 30 seconds...")
+				time.Sleep(30 * time.Second)
+				err = table.Insert("filter", c, 1, "-m", "set", "--match-set", title, "src", "-j", "DROP")
 			}
 		}
 	}

@@ -22,7 +22,9 @@ lists:
   - title: ipsum
     # URL to a TXT file with a list of IP addresses to block
     url: https://raw.githubusercontent.com/stamparm/ipsum/mastejr/ipsum.txt
-    # iptables chains to block IPs from, add as many as needed
+    # iptables chains to block IPs from, add as many as needed,
+    # adding rules to chains will retry every 30 seconds if failed
+    # (e.g. chain does not exist), as of v2.1.3
     chains:
       # Default inbound traffic chain is INPUT
       - INPUT
